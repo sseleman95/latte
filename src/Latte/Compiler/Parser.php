@@ -142,7 +142,7 @@ class Parser
 	private function contextHtmlText(): bool
 	{
 		$matches = $this->match('~
-			(?:(?<=\n|^)[ \t]*)?<(?P<closing>/?)(?P<tag>' . self::RE_TAG_NAME . ')|  ##  begin of HTML tag <tag </tag - ignores <!DOCTYPE
+			(?:(?<=\n|^)[ \t]+)?(?P<tag><)(?P<closing>/?)(?P<name>' . self::RE_TAG_NAME . '|(?=' . $this->delimiters[0] . '))|  ##  begin of HTML tag <tag </tag - ignores <!DOCTYPE
 			<(?P<htmlcomment>!(?:--(?!>))?|\?)|     ##  begin of <!, <!--, <!DOCTYPE, <?
 			(?P<macro>' . $this->delimiters[0] . ')
 		~xsi');
@@ -157,9 +157,9 @@ class Parser
 
 		} elseif (!empty($matches['tag'])) { // <tag or </tag
 			$token = $this->addToken(Token::HTML_TAG_BEGIN, $matches[0]);
-			$token->name = $matches['tag'];
+			$token->name = $matches['name'];
 			$token->closing = (bool) $matches['closing'];
-			$this->lastHtmlTag = $matches['closing'] . strtolower($matches['tag']);
+			$this->lastHtmlTag = $matches['closing'] . strtolower($matches['name']);
 			$this->setContext(self::CONTEXT_HTML_TAG);
 			return true;
 
